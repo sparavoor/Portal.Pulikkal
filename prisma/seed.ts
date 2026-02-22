@@ -1,7 +1,14 @@
 import { PrismaClient } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+import pg from "pg";
 import bcrypt from "bcryptjs";
 
-const prisma = new PrismaClient();
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) throw new Error("DATABASE_URL is required");
+
+const pool = new pg.Pool({ connectionString, ssl: true });
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter } as any);
 
 async function main() {
     // Seed admin
