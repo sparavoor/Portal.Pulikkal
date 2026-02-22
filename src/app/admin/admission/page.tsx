@@ -40,48 +40,94 @@ export default function AdmissionPage() {
     };
 
     const startCamera = async () => {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-            streamRef.current = stream;
-            if (videoRef.current) { videoRef.current.srcObject = stream; videoRef.current.play(); }
-            setCameraActive(true);
-            // QR scanning happens via jsQR - dynamically import
-            const { default: jsQR } = await import("jsqr");
-            scanInterval.current = setInterval(() => {
-                if (!videoRef.current || !canvasRef.current) return;
-                const canvas = canvasRef.current;
-                const ctx = canvas.getContext("2d");
-                if (!ctx || videoRef.current.readyState < 2) return;
-                canvas.width = videoRef.current.videoWidth;
-                canvas.height = videoRef.current.videoHeight;
-                ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                const code = jsQR(imageData.data, imageData.width, imageData.height);
-                if (code) {
-                    try {
-                        const parsed = JSON.parse(code.data);
-                        if (parsed.regId) {
-                            stopCamera();
-                            admit(parsed.regId);
-                        }
-                    } catch {
-                        // Not JSON, try as raw regId
-                        if (code.data.startsWith("REG-")) {
-                            stopCamera();
-                            admit(code.data);
-                        }
-                    }
-                }
-            }, 300);
-        } catch (e) {
-            console.error(e);
-            alert("Camera access denied or not available");
-        }
+        setCameraActive(true);
     };
 
+    useEffect(() => {
+        let active = true;
+
+        async function initCamera() {
+            if (!cameraActive) return;
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: "environment" }
+                });
+
+                if (!active) {
+                    stream.getTracks().forEach(t => t.stop());
+                    return;
+                }
+
+                streamRef.current = stream;
+
+                // Wait for video element to be available in the DOM
+                let attempts = 0;
+                while (!videoRef.current && attempts < 10) {
+                    await new Promise(r => setTimeout(r, 100));
+                    attempts++;
+                }
+
+                if (videoRef.current) {
+                    videoRef.current.srcObject = stream;
+                    await videoRef.current.play().catch(e => console.error("Video play failed:", e));
+                }
+
+                const { default: jsQR } = await import("jsqr");
+                scanInterval.current = setInterval(() => {
+                    if (!videoRef.current || !canvasRef.current) return;
+                    const canvas = canvasRef.current;
+                    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+                    if (!ctx || videoRef.current.readyState < 2) return;
+
+                    canvas.width = videoRef.current.videoWidth;
+                    canvas.height = videoRef.current.videoHeight;
+                    ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+                    if (code) {
+                        try {
+                            const parsed = JSON.parse(code.data);
+                            if (parsed.regId) {
+                                stopCamera();
+                                admit(parsed.regId);
+                            }
+                        } catch {
+                            if (code.data.startsWith("REG-")) {
+                                stopCamera();
+                                admit(code.data);
+                            }
+                        }
+                    }
+                }, 300);
+            } catch (e: any) {
+                console.error("Camera Error:", e);
+                setCameraActive(false);
+                alert(`Camera error: ${e.message || "Unknown error"}`);
+            }
+        }
+
+        if (cameraActive) {
+            initCamera();
+        } else {
+            stopCamera();
+        }
+
+        return () => {
+            active = false;
+        };
+    }, [cameraActive]);
+
     const stopCamera = () => {
-        if (scanInterval.current) clearInterval(scanInterval.current);
-        if (streamRef.current) { streamRef.current.getTracks().forEach(t => t.stop()); }
+        if (scanInterval.current) {
+            clearInterval(scanInterval.current);
+            scanInterval.current = null;
+        }
+        if (streamRef.current) {
+            streamRef.current.getTracks().forEach(t => t.stop());
+            streamRef.current = null;
+        }
         setCameraActive(false);
     };
 
