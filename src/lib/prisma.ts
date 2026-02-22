@@ -3,7 +3,11 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import pg from "pg";
 
 function createPrismaClient() {
-    const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+    const isProduction = process.env.NODE_ENV === "production";
+    const pool = new pg.Pool({
+        connectionString: process.env.DATABASE_URL,
+        ssl: isProduction ? { rejectUnauthorized: false } : false
+    });
     const adapter = new PrismaPg(pool);
     return new PrismaClient({ adapter } as any);
 }
