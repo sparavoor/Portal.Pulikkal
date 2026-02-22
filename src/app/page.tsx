@@ -35,11 +35,18 @@ export default function RegisterPage() {
   const [qrUrl, setQrUrl] = useState("");
 
   useEffect(() => {
-    fetch("/api/settings").then(r => r.json()).then(setSettings);
-    fetch("/api/sectors").then(r => r.json()).then(setSectors);
+    fetch("/api/settings")
+      .then(r => r.ok ? r.json() : ({}))
+      .then(setSettings)
+      .catch(() => { });
+
+    fetch("/api/sectors")
+      .then(r => r.ok ? r.json() : ([]))
+      .then(data => Array.isArray(data) ? setSectors(data) : setSectors([]))
+      .catch(() => setSectors([]));
   }, []);
 
-  const selectedSectorUnits = sectors.find(s => s.id === parseInt(form.sectorId))?.units || [];
+  const selectedSectorUnits = Array.isArray(sectors) ? (sectors.find(s => s.id === parseInt(form.sectorId))?.units || []) : [];
 
   const generateQR = async (reg: Registration) => {
     const url = await QRCode.toDataURL(JSON.stringify({ regId: reg.regId, name: reg.name, mobile: reg.mobile }), {
