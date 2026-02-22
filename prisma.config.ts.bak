@@ -1,0 +1,11 @@
+import { defineConfig } from "prisma/config";
+
+export default defineConfig({
+  schema: "prisma/schema.prisma",
+  migrations: {
+    path: "prisma/migrations",
+  },
+  datasource: {
+    url: "postgresql://d1a828225c734936ad68f7a6d7b92b979a3305a2cd7aaf42830f04961571d8e5:sk_iQjtATeYd3gLNHFD_x2Zp@db.prisma.io:5432/postgres",
+  },
+});

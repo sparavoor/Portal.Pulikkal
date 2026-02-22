@@ -1,0 +1,110 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Admin {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String
+  createdAt DateTime @default(now())
+}
+
+model Sector {
+  id            Int            @id @default(autoincrement())
+  name          String         @unique
+  slug          String         @unique
+  createdAt     DateTime       @default(now())
+  registrations Registration[]
+  sectorAdmin   SectorAdmin?
+  units         Unit[]
+}
+
+model Unit {
+  id            Int            @id @default(autoincrement())
+  name          String
+  sectorId      Int
+  createdAt     DateTime       @default(now())
+  registrations Registration[]
+  sector        Sector         @relation(fields: [sectorId], references: [id], onDelete: Cascade)
+
+  @@unique([name, sectorId])
+}
+
+model Registration {
+  id            Int       @id @default(autoincrement())
+  regId         String    @unique
+  name          String
+  mobile        String    @unique
+  designation   String
+  sectorId      Int
+  unitId        Int
+  qrCode        String?
+  admitted      Boolean   @default(false)
+  admissionTime DateTime?
+  createdAt     DateTime  @default(now())
+  unit          Unit      @relation(fields: [unitId], references: [id])
+  sector        Sector    @relation(fields: [sectorId], references: [id])
+}
+
+model SectorAdmin {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String
+  sectorId  Int      @unique
+  createdAt DateTime @default(now())
+  sector    Sector   @relation(fields: [sectorId], references: [id], onDelete: Cascade)
+}
+
+model News {
+  id               Int      @id @default(autoincrement())
+  title            String
+  slug             String   @unique
+  shortDescription String
+  content          String
+  image            String
+  featured         Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Gallery {
+  id        Int      @id @default(autoincrement())
+  image     String
+  title     String?
+  createdAt DateTime @default(now())
+}
+
+model Hero {
+  id          Int    @id @default(1)
+  bannerImage String
+  title       String
+  subtitle    String
+  btn1Text    String
+  btn1Link    String
+  btn2Text    String
+  btn2Link    String
+}
+
+model Contact {
+  id       Int    @id @default(1)
+  address  String
+  phone    String
+  email    String
+  mapEmbed String
+}
+
+model Footer {
+  id          Int    @id @default(1)
+  aboutText   String
+  socialLinks String // JSON string
+  copyright   String
+}
+model Setting {
+  id    Int    @id @default(autoincrement())
+  key   String @unique
+  value String
+}
