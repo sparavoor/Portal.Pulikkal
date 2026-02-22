@@ -12,11 +12,11 @@ const prisma = new PrismaClient({ adapter } as any);
 
 async function main() {
     // Seed admin
-    const hashedPassword = await bcrypt.hash("admin123", 10);
+    const hashedPassword = await bcrypt.hash("puli12345", 10);
     await prisma.admin.upsert({
-        where: { username: "admin" },
-        update: {},
-        create: { username: "admin", password: hashedPassword },
+        where: { username: "zpulikkal" },
+        update: { password: hashedPassword },
+        create: { username: "zpulikkal", password: hashedPassword },
     });
 
     // Seed default settings
@@ -109,7 +109,7 @@ async function main() {
     });
 
     console.log("✅ Seeding complete!");
-    console.log("Admin: admin / admin123");
+    console.log("Admin: zpulikkal / puli12345");
 }
 
 main()
