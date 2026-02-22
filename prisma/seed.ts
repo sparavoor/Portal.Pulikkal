@@ -1,15 +1,7 @@
 import { PrismaClient } from "@prisma/client";
-import { PrismaPg } from "@prisma/adapter-pg";
-import pg from "pg";
 import bcrypt from "bcryptjs";
 
-// Manually load env for seed script
-const connectionString = process.env.DIRECT_URL || process.env.DATABASE_URL;
-if (!connectionString) throw new Error("DATABASE_URL or DIRECT_URL is required");
-
-const pool = new pg.Pool({ connectionString });
-const adapter = new PrismaPg(pool);
-const prisma = new PrismaClient({ adapter } as any);
+const prisma = new PrismaClient();
 
 async function main() {
     // Seed admin
