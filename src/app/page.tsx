@@ -220,7 +220,7 @@ export default function RegisterPage() {
           {settings.page_heading || "Get Your Ticket"}
         </h1>
         <p className="animate-fade-up" style={{ color: "var(--text-dim)", fontSize: "1rem", maxWidth: 480, margin: "0 auto" }}>
-          {settings.page_instructions || "Enter your mobile number to register and receive your entry ticket instantly."}
+          {settings.page_instructions || <>Meet us at Badr Smrithi. <strong style={{ color: "var(--text)", fontWeight: 800 }}>Register here!</strong></>}
         </p>
       </div>
 
