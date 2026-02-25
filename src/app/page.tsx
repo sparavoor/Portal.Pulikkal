@@ -215,8 +215,9 @@ export default function RegisterPage() {
           <span style={{ width: 7, height: 7, borderRadius: "50%", background: settings.registration_status === "open" ? "#16a34a" : "#dc2626", animation: "pulse 2s infinite" }} />
           {settings.registration_status === "open" ? "Registration is Now Open" : "Registration is Closed"}
         </div>
-        <h1 className="animate-fade-up" style={{ fontSize: "clamp(1.75rem,5vw,2.75rem)", fontWeight: 900, lineHeight: 1.15, marginBottom: ".75rem", color: "var(--text)" }}>
-          {settings.page_heading || "Smart Registration Portal"}
+        <h1 className="animate-fade-up" style={{ fontSize: "clamp(1.75rem,5vw,2.75rem)", fontWeight: 900, lineHeight: 1.15, marginBottom: ".75rem", color: "var(--text)", display: "flex", alignItems: "center", justifyContent: "center", gap: ".5rem" }}>
+          <Ticket size={36} color="var(--primary)" />
+          {settings.page_heading || "Get Your Ticket"}
         </h1>
         <p className="animate-fade-up" style={{ color: "var(--text-dim)", fontSize: "1rem", maxWidth: 480, margin: "0 auto" }}>
           {settings.page_instructions || "Enter your mobile number to register and receive your entry ticket instantly."}
