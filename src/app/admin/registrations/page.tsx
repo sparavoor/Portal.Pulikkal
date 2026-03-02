@@ -3,7 +3,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
-import { Search, CalendarDays, FileSpreadsheet, FileDown, Trash2, X, CheckCircle2, Clock, Copy } from "lucide-react";
+import { Search, CalendarDays, FileSpreadsheet, FileDown, Trash2, X, CheckCircle2, Clock, Copy, ClipboardList } from "lucide-react";
 import DeleteConfirmModal from "@/components/DeleteConfirmModal";
 
 interface Registration {
@@ -21,6 +21,7 @@ export default function RegistrationsPage() {
     const [filters, setFilters] = useState({ search: "", sectorId: "", unitId: "", designation: "", date: "" });
     const [deleteTarget, setDeleteTarget] = useState<Registration | null>(null);
     const [copied, setCopied] = useState(false);
+    const [copiedNames, setCopiedNames] = useState(false);
     const router = useRouter();
 
     const DESIGNATIONS = ["Division Executive", "Division Directorate", "Sector Executive", "Unit Executive"];
@@ -101,6 +102,15 @@ export default function RegistrationsPage() {
         setTimeout(() => setCopied(false), 2000);
     };
 
+    const copyNamesList = () => {
+        const namesList = registrations.map((r, index) => `${index + 1}. ${r.name}`).join("\n");
+        const today = new Date().toLocaleDateString("en-GB");
+        const text = `*Registered Members*\n\n${namesList}\n\n*Total - ${registrations.length}*\n\n📅 ${today}\n_SSF Pulikkal Division_`;
+        navigator.clipboard.writeText(text);
+        setCopiedNames(true);
+        setTimeout(() => setCopiedNames(false), 2000);
+    };
+
     return (
         <div>
             {deleteTarget && (
@@ -126,6 +136,10 @@ export default function RegistrationsPage() {
                     <button className="btn btn-ghost" onClick={copyReport} style={{ gap: ".5rem" }}>
                         {copied ? <CheckCircle2 size={16} color="#16a34a" /> : <Copy size={16} color="var(--primary)" />}
                         {copied ? "Copied" : "Copy Report"}
+                    </button>
+                    <button className="btn btn-ghost" onClick={copyNamesList} style={{ gap: ".5rem" }}>
+                        {copiedNames ? <CheckCircle2 size={16} color="#16a34a" /> : <ClipboardList size={16} color="var(--primary)" />}
+                        {copiedNames ? "Copied" : "Copy Names"}
                     </button>
                     <button className="btn btn-ghost" onClick={exportExcel} style={{ gap: ".5rem" }}>
                         <FileSpreadsheet size={16} color="var(--primary)" /> Excel

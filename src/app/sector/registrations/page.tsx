@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
-import { FileSpreadsheet, FileDown, CheckCircle2, Clock, X, Copy, CalendarDays } from "lucide-react";
+import { FileSpreadsheet, FileDown, CheckCircle2, Clock, X, Copy, CalendarDays, ClipboardList } from "lucide-react";
 
 interface Registration {
     id: number; regId: string; name: string; mobile: string;
@@ -18,6 +18,7 @@ export default function SectorRegistrationsPage() {
     const [unitId, setUnitId] = useState("");
     const [loading, setLoading] = useState(true);
     const [copied, setCopied] = useState(false);
+    const [copiedNames, setCopiedNames] = useState(false);
     const router = useRouter();
 
 
@@ -109,6 +110,16 @@ export default function SectorRegistrationsPage() {
         setTimeout(() => setCopied(false), 2000);
     };
 
+    const copyNamesList = () => {
+        const sectorName = registrations.length > 0 ? registrations[0].sector.name : "Sector";
+        const namesList = registrations.map((r, index) => `${index + 1}. ${r.name}`).join("\n");
+        const today = new Date().toLocaleDateString("en-GB");
+        const text = `*Registered Members*\n\n${namesList}\n\n*Total - ${registrations.length}*\n\n📅 ${today}\n_SSF ${sectorName} Sector_`;
+        navigator.clipboard.writeText(text);
+        setCopiedNames(true);
+        setTimeout(() => setCopiedNames(false), 2000);
+    };
+
     return (
         <div>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.5rem", flexWrap: "wrap", gap: "1rem" }}>
@@ -120,6 +131,10 @@ export default function SectorRegistrationsPage() {
                     <button className="btn btn-ghost" onClick={copyReport} style={{ gap: ".4rem" }}>
                         {copied ? <CheckCircle2 size={15} color="#16a34a" /> : <Copy size={15} color="var(--primary)" />}
                         {copied ? "Copied" : "Copy Report"}
+                    </button>
+                    <button className="btn btn-ghost" onClick={copyNamesList} style={{ gap: ".4rem" }}>
+                        {copiedNames ? <CheckCircle2 size={15} color="#16a34a" /> : <ClipboardList size={15} color="var(--primary)" />}
+                        {copiedNames ? "Copied" : "Copy Names"}
                     </button>
                     <button className="btn btn-ghost" onClick={exportExcel} style={{ gap: ".4rem" }}>
                         <FileSpreadsheet size={15} color="var(--primary)" /> Excel
