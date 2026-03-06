@@ -18,7 +18,7 @@ export default function RegistrationsPage() {
     const [registrations, setRegistrations] = useState<Registration[]>([]);
     const [sectors, setSectors] = useState<Sector[]>([]);
     const [loading, setLoading] = useState(true);
-    const [filters, setFilters] = useState({ search: "", sectorId: "", unitId: "", designation: "", date: "" });
+    const [filters, setFilters] = useState({ search: "", sectorId: "", unitId: "", designation: "", date: "", status: "" });
     const [deleteTarget, setDeleteTarget] = useState<Registration | null>(null);
     const [copied, setCopied] = useState(false);
     const [copiedNames, setCopiedNames] = useState(false);
@@ -34,6 +34,7 @@ export default function RegistrationsPage() {
         if (filters.unitId) params.set("unitId", filters.unitId);
         if (filters.designation) params.set("designation", filters.designation);
         if (filters.date) params.set("date", filters.date);
+        if (filters.status) params.set("status", filters.status);
         const res = await fetch(`/api/admin/registrations?${params}`);
         if (res.status === 401) { router.push("/admin/login"); return; }
         setRegistrations(await res.json());
@@ -175,7 +176,12 @@ export default function RegistrationsPage() {
                         <option value="">All Designations</option>
                         {DESIGNATIONS.map(d => <option key={d} value={d}>{d}</option>)}
                     </select>
-                    <button className="btn btn-ghost" onClick={() => setFilters({ search: "", sectorId: "", unitId: "", designation: "", date: "" })} style={{ gap: ".4rem" }}>
+                    <select className="input" value={filters.status} onChange={e => setFilters({ ...filters, status: e.target.value })}>
+                        <option value="">All Status</option>
+                        <option value="Admitted">Admitted</option>
+                        <option value="Not Admitted">Not Admitted</option>
+                    </select>
+                    <button className="btn btn-ghost" onClick={() => setFilters({ search: "", sectorId: "", unitId: "", designation: "", date: "", status: "" })} style={{ gap: ".4rem" }}>
                         <X size={15} /> Clear
                     </button>
                 </div>

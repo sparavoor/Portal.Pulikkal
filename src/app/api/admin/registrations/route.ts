@@ -12,6 +12,7 @@ export async function GET(req: Request) {
     const unitId = searchParams.get("unitId");
     const designation = searchParams.get("designation");
     const date = searchParams.get("date");
+    const status = searchParams.get("status");
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const where: any = {};
@@ -25,6 +26,8 @@ export async function GET(req: Request) {
     if (sectorId) where.sectorId = parseInt(sectorId);
     if (unitId) where.unitId = parseInt(unitId);
     if (designation) where.designation = designation;
+    if (status === "Admitted") where.admitted = true;
+    if (status === "Not Admitted") where.admitted = false;
     if (date) {
         const d = new Date(date);
         where.createdAt = {

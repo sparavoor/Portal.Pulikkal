@@ -8,10 +8,13 @@ export async function GET(req: Request) {
 
     const { searchParams } = new URL(req.url);
     const unitId = searchParams.get("unitId");
+    const status = searchParams.get("status");
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const where: any = { sectorId: session.sectorId };
     if (unitId) where.unitId = parseInt(unitId);
+    if (status === "Admitted") where.admitted = true;
+    if (status === "Not Admitted") where.admitted = false;
 
     const registrations = await prisma.registration.findMany({
         where,

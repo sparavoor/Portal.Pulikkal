@@ -16,6 +16,7 @@ export default function SectorRegistrationsPage() {
     const [registrations, setRegistrations] = useState<Registration[]>([]);
     const [units, setUnits] = useState<Unit[]>([]);
     const [unitId, setUnitId] = useState("");
+    const [status, setStatus] = useState("");
     const [loading, setLoading] = useState(true);
     const [copied, setCopied] = useState(false);
     const [copiedNames, setCopiedNames] = useState(false);
@@ -27,7 +28,10 @@ export default function SectorRegistrationsPage() {
         let mounted = true;
         const fetchData = async () => {
             setLoading(true);
-            const params = unitId ? `?unitId=${unitId}` : "";
+            const query = new URLSearchParams();
+            if (unitId) query.set("unitId", unitId);
+            if (status) query.set("status", status);
+            const params = query.toString() ? `?${query.toString()}` : "";
             const res = await fetch(`/api/sector/registrations${params}`);
             if (res.status === 401) { router.push("/sector/login"); return; }
             const data = await res.json();
@@ -38,7 +42,7 @@ export default function SectorRegistrationsPage() {
         };
         fetchData();
         return () => { mounted = false; };
-    }, [unitId, router]);
+    }, [unitId, status, router]);
 
     useEffect(() => {
         fetch("/api/sector/units").then(r => r.json()).then(setUnits);
@@ -152,7 +156,12 @@ export default function SectorRegistrationsPage() {
                         <option value="">All Units</option>
                         {units.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
                     </select>
-                    {unitId && <button className="btn btn-ghost" onClick={() => setUnitId("")} style={{ gap: ".4rem" }}><X size={15} /> Clear</button>}
+                    <select className="input" value={status} onChange={e => setStatus(e.target.value)} style={{ maxWidth: 180 }}>
+                        <option value="">All Status</option>
+                        <option value="Admitted">Admitted</option>
+                        <option value="Not Admitted">Not Admitted</option>
+                    </select>
+                    {(unitId || status) && <button className="btn btn-ghost" onClick={() => { setUnitId(""); setStatus(""); }} style={{ gap: ".4rem" }}><X size={15} /> Clear</button>}
                 </div>
             </div>
 
